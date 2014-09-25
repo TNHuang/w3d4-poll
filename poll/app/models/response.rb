@@ -26,14 +26,10 @@ class Response < ActiveRecord::Base
   end
 
   def sibling_responses
-    return self.question.responses if self.id.nil?
+    self.question.responses.
+    where('responses.id = ?', self.id).
+    where('(:id IS NULL) OR (responses.id != :id)', id: self.id)
 
-    Response.
-    select("questions.*").
-    joins("INNER JOIN answer_choices ON responses.answer_id = answer_choices.id").
-    joins("INNER JOIN questions ON answer_choices.question_id = questions.id").
-    where("answer_choices.id = ?", self.answer_id)
-    # where("responses.id != ?", self.id)
   end
 
   def respondent_has_not_already_answered_question
